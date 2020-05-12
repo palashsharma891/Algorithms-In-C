@@ -1,0 +1,248 @@
+/*PROGRAM OF INSERTION AND DELETION OF ELEMENTS IN A LINKED LIST
+  INSERTION - 1.FROM TOP
+              2.AFTER A NODE
+              3.BEFORE A NODE
+              4.AT END OF THE LINKED LIST
+  DELETION  - 1.OF A GIVEN NODE
+              2.OF A NODE FROM A GIVEN POSITION*/
+        /*------***------*/
+
+#include <stdio.h>
+#include <stdlib.h>
+//creating a structure to represent a node in the linked list
+struct Node
+{
+    int data;            //node's data
+    struct Node * next;  //node's pointer to the next node
+};
+/*function to insert an element from the top of a linked list. We have used double pointer in all
+insertion function parameters because we need the reference to point to the new_node and not the local variable "head_ref" to do so*/
+void push(struct Node ** head_ref, int new_data)
+{
+    struct Node * new_node = getNewNode();
+    if(*head_ref == NULL)                 //checking if linked list is empty
+    {
+        new_node->data = new_data;        //if so, then
+        new_node->next = NULL;            //adding new_node
+        *head_ref = new_node;             //at the top
+        return;
+    }
+    new_node -> data = new_data;                    //new_node is given data
+    new_node -> next = *head_ref;                   //and it points to the previous head which is now the second element in the linked list
+    *head_ref = new_node;                //as mentioned above, we need the reference to point to the new_node
+}
+//function to insert a node after a specified node
+void insertAfter(struct Node ** head_ref, int new_data)
+{
+    int insa;
+    printf("\nEnter the number after which it has to be inserted : ");
+    scanf("%d",&insa);
+    struct Node *current = * head_ref;
+    struct Node * prev;
+    struct Node * new_node = getNewNode();
+    while(current != NULL && current -> data != insa)   //loop to traverse until the node is found
+    {
+        prev = current;
+        current = current ->next;
+    }
+    if(current == NULL)
+    {
+        printf("\nNODE IS NOT PRESENT IN THE LINKED LIST\n");
+        return;
+    }
+    new_node ->data = new_data;               //if node is found
+    new_node ->next = current ->next;         //placing the new_node
+    current ->next = new_node;                //after it
+}
+//function to insert a new_node before a given node
+void insertBefore(struct Node ** head_ref,int new_data)
+{
+    int insb;
+    printf("\nEnter the number before which it has to be inserted : ");
+    scanf("%d",&insb);
+    struct Node * new_node = getNewNode();
+    struct Node * current = * head_ref;
+    struct Node * prev;
+    if(current ->data == insb)     //checking if head itself is the number before which we want to insert the new_node
+    {
+        new_node -> data = new_data;              //inserting
+        new_node -> next = * head_ref;            //new_node
+        * head_ref = new_node;                    //at head
+        return;
+    }
+    while(current != NULL && current -> data != insb) //loop to traverse until the node is found
+    {
+        prev = current;
+        current = current -> next;
+    }
+    if(current == NULL)
+    {
+        printf("\nNODE NOT PRESENT IN THE LINKED LIST\n");
+        return;
+    }
+    new_node -> data = new_data;              //if node is found
+    new_node -> next = prev -> next;          //placing the new node
+    prev -> next = new_node;                  //before it
+}
+//function to insert a new_node at the end of the linked list
+void append(struct Node ** head_ref,int new_data)
+{
+    printf("\nAPPEND");
+    struct Node * new_node = getNewNode();
+    struct Node * last = *head_ref;
+    new_node -> data = new_data;
+    new_node -> next = NULL;
+    if(*head_ref == NULL)      //checking if linked list is empty
+    {
+        *head_ref = new_node;  //if so then adding new_node at head
+        return;
+    }
+    // Traverse to the end of the list
+    while(last -> next != NULL)
+    {
+        last = last -> next;
+    }
+    //Add the newly created note to the end of the list
+    last -> next = new_node;
+    return;
+}
+//function to delete a given node from the linked list
+void deleteNode(struct Node ** head_ref, int key)
+{
+    struct Node * current = *head_ref;
+    struct Node * prev;
+    if(current == NULL)
+    {
+        printf("LINKED LIST IS EMPTY");
+        return;
+    }
+    if(current != NULL && current -> data == key) //checking if the head needs to be deleted
+    {
+        *head_ref = current -> next;
+        free(current);
+        return;
+    }
+    while(current != NULL && current -> data != key) //loop to traverse until the node is found or the end of the linked list is reached
+    {
+        prev = current;
+        current = current ->next;
+    }
+    if(current == NULL)    //displaying message if node is not found
+    {
+        printf("\nNODE IS NOT PRESENT IN THE LINKED LIST\n");
+        return;
+    }
+    prev ->next = current ->next;    //if node is found, then deleting it.
+    free(current);
+}
+//function to delete a node from a given position
+void deletePosition(struct Node ** head_ref, int position)
+{
+    if(*head_ref == NULL) //checking if linked list is empty
+    {
+        printf("\nLINKED LIST IS EMPTY\n");
+        return;
+    }
+    struct Node * temp = *head_ref;
+    if(position == 0)   //checking if first position has to be deleted
+    {
+        *head_ref =temp ->next;      //unlinking head from the linked list
+        free(temp);
+        return;
+    }
+    for(int i=0;temp !=NULL && i<position -1;i++)//finding previous node of the node to be deleted
+    {
+        temp = temp ->next;
+    }
+    //if position is more than number of nodes
+    if(temp ==NULL || temp ->next == NULL)
+    {
+        printf("\nNO NODE HERE TO DELETE\nPLEASE ENTER VALID POSITION\n");
+        return;
+    }
+    struct Node * next_node = temp ->next->next;  //skipping the node
+    free(temp ->next);                            //while creating
+    temp -> next = next_node;                     //new linkage
+}
+/*function to allocate memory for a new_node which needs to be inserted in
+the linked list via push,insertAfter,insertBefore and append functions*/
+void getNewNode()
+{
+    struct Node * new_node_alloc = (struct Node *)malloc(sizeof(struct Node));
+    if(new_node_alloc == NULL)  //displaying message if memory is unavailable
+    {
+        printf("\nNO SPACE LEFT IN THE LINKED LIST!\nUNABLE TO ALLOCATE NEW MEMORY!\nNEW NODE CAN'T BE CREATED!");
+        return;
+    }
+    else
+    {
+        return &new_node_alloc;
+    }
+}
+//function to print the linked list
+void printList(struct Node *node)
+{
+    printf("\n");
+    while(node != NULL)  //traversal till the end of the linked list
+    {
+        printf("%d -> ",node->data);
+        node = node -> next;
+    }
+    printf("\n");
+}
+int main()
+{
+    int ch,num,pos;
+    struct Node * head =NULL;
+    do
+    {
+        printf("\nPress 1 to insert a number from the top");
+        printf("\nPress 2 to insert a number after a number");
+        printf("\nPress 3 to insert a number before a number");
+        printf("\nPress 4 to insert a number at the end");
+        printf("\nPress 5 to delete a given number from the linked list");
+        printf("\nPress 6 to delete a number from a given position");
+        printf("\nPress 7 to exit the program");
+        printf("\nEnter your choice : ");
+        scanf("\n%d",&ch);
+        switch(ch)
+        {
+            case 1 : printf("\nEnter the number to be inserted from the top : ");
+                     scanf("\n%d",&num);
+                     push(&head,num);
+                     printList(head);
+                     break;
+            case 2 : printf("\nEnter the number to be inserted in the linked list : ");
+                     scanf("\n%d",&num);
+                     insertAfter(&head,num);
+                     printList(head);
+                     break;
+            case 3 : printf("\nEnter the number to be inserted in the linked list : ");
+                     scanf("\n%d",&num);
+                     insertBefore(&head,num);
+                     printList(head);
+                     break;
+            case 4 : printf("\nEnter the number to be inserted at end : ");
+                     scanf("%d",&num);
+                     append(&head,num);
+                     printList(head);
+                     break;
+            case 5 : printf("\nEnter the number to be deleted from the linked list : ");
+                     scanf("%d",&num);
+                     deleteNode(&head,num);
+                     printList(head);
+                     break;
+            case 6 : printf("\nEnter the position from which the number has to be deleted : ");
+                     scanf("%d",&pos);
+                     deletePosition(&head,pos);
+                     printList(head);
+                     break;
+            case 7 : printf("Thanks");
+                     break;
+            default : printf("\nINVALID CHOICE PLEASE PROVIDE A VALID INPUT (1-7)\n");
+        }
+    }while(ch != 7);
+    return 0;
+}
+
+
